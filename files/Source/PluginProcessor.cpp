@@ -93,7 +93,13 @@ void EqAudioProcessor::changeProgramName (int index, const juce::String& newName
 //==============================================================================
 void EqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
+    juce::dsp::ProcessSpec spec;
+    spec.maximumBlockSize = samplesPerBlock;
+    spec.numChannels = 1;
+    spec.sampleRate = sampleRate;
     
+    leftChain.prepare(spec);
+    rightChain.prepare(spec);
 }
 
 void EqAudioProcessor::releaseResources()
