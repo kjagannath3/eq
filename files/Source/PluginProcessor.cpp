@@ -100,6 +100,9 @@ void EqAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     
     leftChain.prepare(spec);
     rightChain.prepare(spec);
+    
+    auto chainSettings = getChainSettings(apvts);
+    auto peakCoefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate, chainSettings.peakFreq, chainSettings.peakQuality, juce::Decibels::decibelsToGain(chainSettings.peakGainInDecibels));
 }
 
 void EqAudioProcessor::releaseResources()
@@ -197,6 +200,19 @@ void EqAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+}
+
+ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts)
+{
+    ChainSettings settings;
+    settings.lowCutFreq = apvts.getRawParameterValue("Lowcut Freq") -> load();
+    settings.highCutFreq = apvts.getRawParameterValue("Highcut Freq") -> load();
+    settings.peakFreq = apvts.getRawParameterValue("Peak Freq") -> load();
+    settings.peakGainInDecibels = apvts.getRawParameterValue("Peak Gain") -> load();
+    settings.peakQuality = apvts.getRawParameterValue("Peak Quality") -> load();
+    settings.lowCutSlope = apvts.getRawParameterValue("Lowcut Slope") -> load();
+    settings.highCutSlope = apvts.getRawParameterValue("Highcut Slope") -> load();
+    return settings;
 }
 
 juce::AudioProcessorValueTreeState::ParameterLayout EqAudioProcessor::createParameterLayout()
